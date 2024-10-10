@@ -1,30 +1,48 @@
-use egui::{Vec2, Widget};
+use chrono::{DateTime, Local};
+use egui::{Layout, Vec2, Widget};
 
 #[derive(Debug)]
 pub struct App {
     speed: f64,
+    previous_time: DateTime<Local>,
 }
 
 impl App {
     pub fn new() -> Self {
         Self {
             speed: 1.0,
+            previous_time: Local::now(),
         }
     }
 }
 
 impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+        let current_time = Local::now();
+        let delta = current_time - self.previous_time;
+        self.previous_time = current_time;
+
         egui::SidePanel::left("settings_panel").show(ctx, |ui| {
-            if ui.button("run").clicked() {
+            ui.horizontal(|ui| {
+                if ui.button("run").clicked() {
 
-            }
+                }
+    
+                if ui.button("stop").clicked() {
 
-            if ui.button("reset").clicked() {
+                }
 
-            }
+                if ui.button("reset").clicked() {
+    
+                }
+            });
 
             egui::Slider::new(&mut self.speed, 0.1..=10.0).ui(ui);
+
+            ui.with_layout(Layout::bottom_up(egui::Align::Min), |ui| {
+                let fps = 1000.0 / delta.num_milliseconds() as f64;
+                ui.label(format!("FPS: {:.1}", fps,));
+            });
         });
 
         egui::CentralPanel::default().show(ctx, |ui| {
