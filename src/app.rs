@@ -1,5 +1,6 @@
 use chrono::{DateTime, Local};
 use egui::{Layout, Vec2, Widget};
+use egui_plot::{Legend, Line, Plot, PlotPoints};
 
 #[derive(Debug)]
 pub struct App {
@@ -9,7 +10,9 @@ pub struct App {
     x_d: f64,
     delta_t: f64,
     tick: f64,
-    run: bool
+    run: bool,
+    time_points: Vec<f64>,
+    x_points: Vec<f64>,
 }
 
 impl App {
@@ -22,6 +25,8 @@ impl App {
             delta_t: 20.0 / 1000.0,
             tick: 0.0,
             run: false,
+            time_points: vec![0.0],
+            x_points: vec![1.0],
         }
     }
 }
@@ -44,6 +49,10 @@ impl eframe::App for App {
                     self.x_d = 1.0;
                     self.x = -1.0;
                 }
+
+                let new_time_point = self.time_points.last().unwrap() + self.delta_t;
+                self.time_points.push(new_time_point);
+                self.x_points.push(self.x);
             }
         }
 
@@ -97,20 +106,65 @@ impl eframe::App for App {
                 
                 ui.allocate_ui(cell_size, |ui| {
                     ui.centered_and_justified(|ui| {
-                        ui.label("Row 1, Column 2");
+                        let plot = Plot::new("plot1")
+                            .legend(Legend::default())
+                            .show_axes(true)
+                            .show_grid(true)
+                            .data_aspect(1.0);
+
+                        plot.show(ui, |ui| {
+                            let points: PlotPoints = self.time_points
+                                .iter()
+                                .zip(self.x_points.iter())
+                                .map(|(&x, &y)| {
+                                    [x, y]
+                                })
+                                .collect();
+                            ui.line(Line::new(points));
+                        });
                     });
                 });
                 ui.end_row();
 
                 ui.allocate_ui(cell_size, |ui| {
                     ui.centered_and_justified(|ui| {
-                        ui.label("Row 2, Column 1");
+                        let plot = Plot::new("plot2")
+                            .legend(Legend::default())
+                            .show_axes(true)
+                            .show_grid(true)
+                            .data_aspect(1.0);
+
+                        plot.show(ui, |ui| {
+                            let points: PlotPoints = self.time_points
+                                .iter()
+                                .zip(self.x_points.iter())
+                                .map(|(&x, &y)| {
+                                    [x, y]
+                                })
+                                .collect();
+                            ui.line(Line::new(points));
+                        });
                     });
                 });
                 
                 ui.allocate_ui(cell_size, |ui| {
                     ui.centered_and_justified(|ui| {
-                        ui.label("Row 2, Column 2");
+                        let plot = Plot::new("plot3")
+                            .legend(Legend::default())
+                            .show_axes(true)
+                            .show_grid(true)
+                            .data_aspect(1.0);
+
+                        plot.show(ui, |ui| {
+                            let points: PlotPoints = self.time_points
+                                .iter()
+                                .zip(self.x_points.iter())
+                                .map(|(&x, &y)| {
+                                    [x, y]
+                                })
+                                .collect();
+                            ui.line(Line::new(points));
+                        });
                     });
                 });
                 ui.end_row();
