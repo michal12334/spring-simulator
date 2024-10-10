@@ -35,10 +35,18 @@ impl eframe::App for App {
                     y: size.y / 2.0,
                 }
             };
+            let current_size = ui.min_rect();
             egui::Grid::new("main_grid").show(ui, |ui| {
                 ui.allocate_ui(cell_size, |ui| {
                     ui.centered_and_justified(|ui| {
-                        ui.label("Row 1, Column 1");
+                        let y = cell_size.y / 2.0;
+                        let x_space = cell_size.x - 40.0;
+
+                        let start = egui::pos2( 20.0 + current_size.x_range().min, y + current_size.y_range().min);
+                        let end = egui::pos2(20.0 + x_space + current_size.x_range().min, y + current_size.y_range().min);
+
+                        let painter = ui.painter();
+                        painter.line_segment([start, end], egui::Stroke::new(2.0, egui::Color32::RED));
                     });
                 });
                 
