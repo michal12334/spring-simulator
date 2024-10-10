@@ -5,6 +5,11 @@ use egui::{Layout, Vec2, Widget};
 pub struct App {
     speed: f64,
     previous_time: DateTime<Local>,
+    x: f64,
+    x_d: f64,
+    delta_t: f64,
+    tick: f64,
+    run: bool
 }
 
 impl App {
@@ -12,28 +17,48 @@ impl App {
         Self {
             speed: 1.0,
             previous_time: Local::now(),
+            x: 0.0,
+            x_d: 1.0,
+            delta_t: 20.0 / 1000.0,
+            tick: 0.0,
+            run: false,
         }
     }
 }
 
 impl eframe::App for App {
-    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         let current_time = Local::now();
         let delta = current_time - self.previous_time;
         self.previous_time = current_time;
 
+        if self.run {
+            self.tick += delta.num_milliseconds() as f64 / 1000.0;
+            while self.tick >= self.delta_t / self.speed {
+                self.tick -= self.delta_t / self.speed;
+                self.x += self.x_d * self.delta_t;
+                if self.x >= 1.0 {
+                    self.x_d = -1.0;
+                    self.x = 1.0;
+                } else if self.x <= -1.0 {
+                    self.x_d = 1.0;
+                    self.x = -1.0;
+                }
+            }
+        }
+
         egui::SidePanel::left("settings_panel").show(ctx, |ui| {
             ui.horizontal(|ui| {
                 if ui.button("run").clicked() {
-
+                    self.run = true;
                 }
     
                 if ui.button("stop").clicked() {
-
+                    self.run = false;
                 }
 
                 if ui.button("reset").clicked() {
-    
+                    self.run = false;
                 }
             });
 
@@ -59,9 +84,11 @@ impl eframe::App for App {
                     ui.centered_and_justified(|ui| {
                         let y = cell_size.y / 2.0;
                         let x_space = cell_size.x - 40.0;
+                        let x_min = 0.2 * x_space;
+                        let x = x_min + (self.x as f32 + 1.0) * 0.5 * (x_space - x_min);
 
                         let start = egui::pos2( 20.0 + current_size.x_range().min, y + current_size.y_range().min);
-                        let end = egui::pos2(20.0 + x_space + current_size.x_range().min, y + current_size.y_range().min);
+                        let end = egui::pos2(20.0 + x + current_size.x_range().min, y + current_size.y_range().min);
 
                         let painter = ui.painter();
                         painter.line_segment([start, end], egui::Stroke::new(2.0, egui::Color32::RED));
@@ -89,5 +116,7 @@ impl eframe::App for App {
                 ui.end_row();
             });
         });
+
+        ctx.request_repaint();
     }
 }
