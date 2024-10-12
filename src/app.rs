@@ -2,7 +2,7 @@ use chrono::{DateTime, Local};
 use egui::{Layout, Vec2, Widget};
 use egui_plot::{Legend, Line, Plot, PlotPoints};
 
-use crate::{forces_plot::ForcesPlot, function::{ConstFunction, Function}, function_builder::FunctionBuilder};
+use crate::{forces_plot::ForcesPlot, function::{ConstFunction, Function}, function_builder::FunctionBuilder, position_plot::PositionPlot};
 
 #[derive(Debug)]
 pub struct App {
@@ -26,6 +26,7 @@ pub struct App {
     time_points: Vec<f64>,
     x_points: Vec<f64>,
     forces_plot: ForcesPlot,
+    position_plot: PositionPlot,
 }
 
 #[derive(Debug, Default)]
@@ -67,6 +68,7 @@ impl App {
             time_points: vec![0.0],
             x_points: vec![0.0],
             forces_plot: ForcesPlot::default(),
+            position_plot: PositionPlot::default(),
         }
     }
 
@@ -81,6 +83,7 @@ impl App {
         self.x_points.clear();
         self.x_points.push(self.x_0);
         self.forces_plot.reset();
+        self.position_plot.reset();
     }
 
     fn forces(&self) -> Forces {
@@ -114,7 +117,11 @@ impl eframe::App for App {
                 self.time_points.push(new_time_point);
                 self.x_points.push(self.x);
 
+                let forces = self.forces();
+                let v_t = (forces.f + forces.g + forces.h) / self.m;
+
                 self.forces_plot.add(t, forces.f, forces.g, forces.h, forces.w);
+                self.position_plot.add(t, self.x, self.v, v_t);
             }
         }
 
@@ -199,22 +206,7 @@ impl eframe::App for App {
 
                 ui.allocate_ui(cell_size, |ui| {
                     ui.centered_and_justified(|ui| {
-                        let plot = Plot::new("plot2")
-                            .legend(Legend::default())
-                            .show_axes(true)
-                            .show_grid(true)
-                            .data_aspect(1.0);
-
-                        plot.show(ui, |ui| {
-                            let points: PlotPoints = self.time_points
-                                .iter()
-                                .zip(self.x_points.iter())
-                                .map(|(&x, &y)| {
-                                    [x, y]
-                                })
-                                .collect();
-                            ui.line(Line::new(points));
-                        });
+                        self.position_plot.show(ui);
                     });
                 });
                 
