@@ -31,8 +31,8 @@ impl App {
         Self {
             speed: 1.0,
             previous_time: Local::now(),
-            x: 1.0,
-            v: 0.0,
+            x: 0.0,
+            v: 1.0,
             x_0: 0.0,
             v_0: 1.0,
             m: 1.0,
