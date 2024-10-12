@@ -22,6 +22,7 @@ pub struct App {
     w_builder: FunctionBuilder,
     h_builder: FunctionBuilder,
     run: bool,
+    started: bool,
     time_points: Vec<f64>,
     x_points: Vec<f64>,
 }
@@ -45,9 +46,22 @@ impl App {
             w_builder: FunctionBuilder::default(),
             h_builder: FunctionBuilder::default(),
             run: false,
+            started: false,
             time_points: vec![0.0],
             x_points: vec![0.0],
         }
+    }
+
+    fn reset(&mut self) {
+        self.x = self.x_0;
+        self.v = self.v_0;
+        self.tick = 0.0;
+        self.run = false;
+        self.started = false;
+        self.time_points.clear();
+        self.time_points.push(0.0);
+        self.x_points.clear();
+        self.x_points.push(self.x_0);
     }
 }
 
@@ -78,6 +92,13 @@ impl eframe::App for App {
             ui.horizontal(|ui| {
                 if ui.button("run").clicked() {
                     self.run = true;
+                    if !self.started {
+                        self.x = self.x_0;
+                        self.v = self.v_0;
+                        self.x_points.clear();
+                        self.x_points.push(self.x_0);
+                    }
+                    self.started = true;
                 }
     
                 if ui.button("stop").clicked() {
@@ -85,7 +106,7 @@ impl eframe::App for App {
                 }
 
                 if ui.button("reset").clicked() {
-                    self.run = false;
+                    self.reset();
                 }
             });
 
