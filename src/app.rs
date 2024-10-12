@@ -2,7 +2,7 @@ use chrono::{DateTime, Local};
 use egui::{Layout, Vec2, Widget};
 use egui_plot::{Legend, Line, Plot, PlotPoints};
 
-use crate::function::{ConstFunction, Function};
+use crate::{function::{ConstFunction, Function}, function_builder::FunctionBuilder};
 
 #[derive(Debug)]
 pub struct App {
@@ -19,6 +19,8 @@ pub struct App {
     tick: f64,
     w: Function,
     h: Function,
+    w_builder: FunctionBuilder,
+    h_builder: FunctionBuilder,
     run: bool,
     time_points: Vec<f64>,
     x_points: Vec<f64>,
@@ -40,6 +42,8 @@ impl App {
             tick: 0.0,
             w: Function::Const(ConstFunction::new(0.0)),
             h: Function::Const(ConstFunction::new(0.0)),
+            w_builder: FunctionBuilder::default(),
+            h_builder: FunctionBuilder::default(),
             run: false,
             time_points: vec![0.0],
             x_points: vec![0.0],
@@ -92,6 +96,16 @@ impl eframe::App for App {
             egui::Slider::new(&mut self.m, 1.0..=50.0).text("m").ui(ui);
             egui::Slider::new(&mut self.c, 0.1..=1.0).text("c").ui(ui);
             egui::Slider::new(&mut self.k, 0.1..=1.0).text("k").ui(ui);
+
+            ui.label("w(t):");
+            if self.w_builder.show(ui) {
+                self.w = self.w_builder.build();
+            }
+
+            ui.label("h(t):");
+            if self.h_builder.show(ui) {
+                self.h = self.h_builder.build();
+            }
 
             ui.with_layout(Layout::bottom_up(egui::Align::Min), |ui| {
                 let fps = 1000.0 / delta.num_milliseconds() as f64;
