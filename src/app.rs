@@ -22,8 +22,7 @@ pub struct App {
     h_builder: FunctionBuilder,
     run: bool,
     started: bool,
-    time_points: Vec<f64>,
-    x_points: Vec<f64>,
+    time: f64,
     forces_plot: ForcesPlot,
     position_plot: PositionPlot,
     trajectory_plot: TrajectoryPlot,
@@ -65,8 +64,7 @@ impl App {
             h_builder: FunctionBuilder::default(),
             run: false,
             started: false,
-            time_points: vec![0.0],
-            x_points: vec![0.0],
+            time: 0.0,
             forces_plot: ForcesPlot::default(),
             position_plot: PositionPlot::default(),
             trajectory_plot: TrajectoryPlot::default(),
@@ -79,19 +77,22 @@ impl App {
         self.tick = 0.0;
         self.run = false;
         self.started = false;
-        self.time_points.clear();
-        self.time_points.push(0.0);
-        self.x_points.clear();
-        self.x_points.push(self.x_0);
         self.forces_plot.reset();
         self.position_plot.reset();
         self.trajectory_plot.reset();
+
+        let forces = self.forces();
+        self.forces_plot.add(self.time, forces.f, forces.g, forces.h, forces.w);
+
+        let v_t = (forces.f + forces.g + forces.h) / self.m;
+        self.position_plot.add(self.time, self.x, self.v, v_t);
+
+        self.trajectory_plot.add(self.x, self.v);
     }
 
     fn forces(&self) -> Forces {
-        let t = *self.time_points.last().unwrap();
-        let w = self.w.get_value(t);
-        let h = self.h.get_value(t);
+        let w = self.w.get_value(self.time);
+        let h = self.h.get_value(self.time);
         let g = -self.k * self.v;
         let f = self.c * (w - self.x);
         Forces::new(f, g, h, w)
@@ -109,21 +110,18 @@ impl eframe::App for App {
             while self.tick >= self.delta_t / self.speed {
                 self.tick -= self.delta_t / self.speed;
 
-                let t = *self.time_points.last().unwrap();
                 let forces = self.forces();
 
                 self.x += self.v * self.delta_t;
                 self.v += self.delta_t * (forces.f + forces.g + forces.h) / self.m;
 
-                let new_time_point = t + self.delta_t;
-                self.time_points.push(new_time_point);
-                self.x_points.push(self.x);
+                self.time = self.time + self.delta_t;
 
                 let forces = self.forces();
                 let v_t = (forces.f + forces.g + forces.h) / self.m;
 
-                self.forces_plot.add(t, forces.f, forces.g, forces.h, forces.w);
-                self.position_plot.add(t, self.x, self.v, v_t);
+                self.forces_plot.add(self.time, forces.f, forces.g, forces.h, forces.w);
+                self.position_plot.add(self.time, self.x, self.v, v_t);
                 self.trajectory_plot.add(self.x, self.v);
             }
         }
@@ -131,10 +129,10 @@ impl eframe::App for App {
         egui::SidePanel::left("settings_panel").show(ctx, |ui| {
             ui.horizontal(|ui| {
                 if ui.button("run").clicked() {
-                    self.run = true;
                     if !self.started {
                         self.reset();
                     }
+                    self.run = true;
                     self.started = true;
                 }
     
