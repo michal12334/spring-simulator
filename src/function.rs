@@ -9,7 +9,13 @@ impl Function {
     pub fn get_value(&self, t: f64) -> f64 {
         match self {
             Function::Const(f) => f.value,
-            Function::Step(f) => if t >= f.min_t { f.value } else { 0.0 },
+            Function::Step(f) => {
+                if t >= f.min_t {
+                    f.value
+                } else {
+                    0.0
+                }
+            }
             Function::Sin(f) => f.a * (f.w * t + f.q).sin(),
         }
     }
@@ -50,4 +56,3 @@ impl SinFunction {
         Self { a, w, q }
     }
 }
-

@@ -21,25 +21,37 @@ impl FunctionBuilder {
                 result = true;
             }
         }
-        result = result || (self.const_function_builder.show(ui) && self.builder_type == FunctionBuilderType::Const);
+        result = result
+            || (self.const_function_builder.show(ui)
+                && self.builder_type == FunctionBuilderType::Const);
 
         let mut checked = self.builder_type == FunctionBuilderType::Step;
-        if Checkbox::new(&mut checked, "f(t) =\n0 for t < min_t,\nA for t >= min_t").ui(ui).changed() {
+        if Checkbox::new(&mut checked, "f(t) =\n0 for t < min_t,\nA for t >= min_t")
+            .ui(ui)
+            .changed()
+        {
             if checked {
                 self.builder_type = FunctionBuilderType::Step;
                 result = true;
             }
         }
-        result = result || (self.step_function_builder.show(ui) && self.builder_type == FunctionBuilderType::Step);
+        result = result
+            || (self.step_function_builder.show(ui)
+                && self.builder_type == FunctionBuilderType::Step);
 
         let mut checked = self.builder_type == FunctionBuilderType::Sin;
-        if Checkbox::new(&mut checked, "f(t) = A sin(wt + q)").ui(ui).changed() {
+        if Checkbox::new(&mut checked, "f(t) = A sin(wt + q)")
+            .ui(ui)
+            .changed()
+        {
             if checked {
                 self.builder_type = FunctionBuilderType::Sin;
                 result = true;
             }
         }
-        result = result || (self.sin_function_builder.show(ui) && self.builder_type == FunctionBuilderType::Sin);
+        result = result
+            || (self.sin_function_builder.show(ui)
+                && self.builder_type == FunctionBuilderType::Sin);
 
         result
     }

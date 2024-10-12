@@ -1,9 +1,9 @@
 use app::App;
 
 pub mod app;
+pub mod forces_plot;
 pub mod function;
 pub mod function_builder;
-pub mod forces_plot;
 pub mod position_plot;
 pub mod trajectory_plot;
 

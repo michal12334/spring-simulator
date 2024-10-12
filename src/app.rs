@@ -1,7 +1,13 @@
 use chrono::{DateTime, Local};
 use egui::{Layout, Vec2, Widget};
 
-use crate::{forces_plot::ForcesPlot, function::{ConstFunction, Function}, function_builder::FunctionBuilder, position_plot::PositionPlot, trajectory_plot::TrajectoryPlot};
+use crate::{
+    forces_plot::ForcesPlot,
+    function::{ConstFunction, Function},
+    function_builder::FunctionBuilder,
+    position_plot::PositionPlot,
+    trajectory_plot::TrajectoryPlot,
+};
 
 #[derive(Debug)]
 pub struct App {
@@ -38,9 +44,7 @@ struct Forces {
 
 impl Forces {
     pub fn new(f: f64, g: f64, h: f64, w: f64) -> Self {
-        Self {
-            f, g, h, w
-        }
+        Self { f, g, h, w }
     }
 }
 
@@ -82,7 +86,8 @@ impl App {
         self.trajectory_plot.reset();
 
         let forces = self.forces();
-        self.forces_plot.add(self.time, forces.f, forces.g, forces.h, forces.w);
+        self.forces_plot
+            .add(self.time, forces.f, forces.g, forces.h, forces.w);
 
         let v_t = (forces.f + forces.g + forces.h) / self.m;
         self.position_plot.add(self.time, self.x, self.v, v_t);
@@ -120,7 +125,8 @@ impl eframe::App for App {
                 let forces = self.forces();
                 let v_t = (forces.f + forces.g + forces.h) / self.m;
 
-                self.forces_plot.add(self.time, forces.f, forces.g, forces.h, forces.w);
+                self.forces_plot
+                    .add(self.time, forces.f, forces.g, forces.h, forces.w);
                 self.position_plot.add(self.time, self.x, self.v, v_t);
                 self.trajectory_plot.add(self.x, self.v);
             }
@@ -135,7 +141,7 @@ impl eframe::App for App {
                     self.run = true;
                     self.started = true;
                 }
-    
+
                 if ui.button("stop").clicked() {
                     self.run = false;
                 }
@@ -145,10 +151,19 @@ impl eframe::App for App {
                 }
             });
 
-            egui::Slider::new(&mut self.speed, 0.1..=10.0).text("speed").ui(ui);
-            egui::Slider::new(&mut self.delta_t, 0.01..=0.5).step_by(0.01).text("delta_t").ui(ui);
-            egui::Slider::new(&mut self.x_0, -1.0..=1.0).text("x_0").ui(ui);
-            egui::Slider::new(&mut self.v_0, -1.0..=1.0).text("v_0").ui(ui);
+            egui::Slider::new(&mut self.speed, 0.1..=10.0)
+                .text("speed")
+                .ui(ui);
+            egui::Slider::new(&mut self.delta_t, 0.01..=0.5)
+                .step_by(0.01)
+                .text("delta_t")
+                .ui(ui);
+            egui::Slider::new(&mut self.x_0, -1.0..=1.0)
+                .text("x_0")
+                .ui(ui);
+            egui::Slider::new(&mut self.v_0, -1.0..=1.0)
+                .text("v_0")
+                .ui(ui);
             egui::Slider::new(&mut self.m, 1.0..=50.0).text("m").ui(ui);
             egui::Slider::new(&mut self.c, 0.1..=1.0).text("c").ui(ui);
             egui::Slider::new(&mut self.k, 0.1..=1.0).text("k").ui(ui);
@@ -190,14 +205,21 @@ impl eframe::App for App {
                         let x_min = 0.2 * x_space;
                         let x = x_min + (self.x as f32 + 1.0) * 0.5 * (x_space - x_min);
 
-                        let start = egui::pos2( 20.0 + current_size.x_range().min, y + current_size.y_range().min);
-                        let end = egui::pos2(20.0 + x + current_size.x_range().min, y + current_size.y_range().min);
+                        let start = egui::pos2(
+                            20.0 + current_size.x_range().min,
+                            y + current_size.y_range().min,
+                        );
+                        let end = egui::pos2(
+                            20.0 + x + current_size.x_range().min,
+                            y + current_size.y_range().min,
+                        );
 
                         let painter = ui.painter();
-                        painter.line_segment([start, end], egui::Stroke::new(2.0, egui::Color32::RED));
+                        painter
+                            .line_segment([start, end], egui::Stroke::new(2.0, egui::Color32::RED));
                     });
                 });
-                
+
                 ui.allocate_ui(cell_size, |ui| {
                     ui.centered_and_justified(|ui| {
                         self.forces_plot.show(ui);
@@ -210,7 +232,7 @@ impl eframe::App for App {
                         self.position_plot.show(ui);
                     });
                 });
-                
+
                 ui.allocate_ui(cell_size, |ui| {
                     ui.centered_and_justified(|ui| {
                         self.trajectory_plot.show(ui);
