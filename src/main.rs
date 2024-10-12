@@ -5,6 +5,7 @@ pub mod function;
 pub mod function_builder;
 pub mod forces_plot;
 pub mod position_plot;
+pub mod trajectory_plot;
 
 fn main() -> eframe::Result {
     let native_options = eframe::NativeOptions {

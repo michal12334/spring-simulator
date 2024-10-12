@@ -1,8 +1,7 @@
 use chrono::{DateTime, Local};
 use egui::{Layout, Vec2, Widget};
-use egui_plot::{Legend, Line, Plot, PlotPoints};
 
-use crate::{forces_plot::ForcesPlot, function::{ConstFunction, Function}, function_builder::FunctionBuilder, position_plot::PositionPlot};
+use crate::{forces_plot::ForcesPlot, function::{ConstFunction, Function}, function_builder::FunctionBuilder, position_plot::PositionPlot, trajectory_plot::TrajectoryPlot};
 
 #[derive(Debug)]
 pub struct App {
@@ -27,6 +26,7 @@ pub struct App {
     x_points: Vec<f64>,
     forces_plot: ForcesPlot,
     position_plot: PositionPlot,
+    trajectory_plot: TrajectoryPlot,
 }
 
 #[derive(Debug, Default)]
@@ -69,6 +69,7 @@ impl App {
             x_points: vec![0.0],
             forces_plot: ForcesPlot::default(),
             position_plot: PositionPlot::default(),
+            trajectory_plot: TrajectoryPlot::default(),
         }
     }
 
@@ -84,6 +85,7 @@ impl App {
         self.x_points.push(self.x_0);
         self.forces_plot.reset();
         self.position_plot.reset();
+        self.trajectory_plot.reset();
     }
 
     fn forces(&self) -> Forces {
@@ -122,6 +124,7 @@ impl eframe::App for App {
 
                 self.forces_plot.add(t, forces.f, forces.g, forces.h, forces.w);
                 self.position_plot.add(t, self.x, self.v, v_t);
+                self.trajectory_plot.add(self.x, self.v);
             }
         }
 
@@ -212,22 +215,7 @@ impl eframe::App for App {
                 
                 ui.allocate_ui(cell_size, |ui| {
                     ui.centered_and_justified(|ui| {
-                        let plot = Plot::new("plot3")
-                            .legend(Legend::default())
-                            .show_axes(true)
-                            .show_grid(true)
-                            .data_aspect(1.0);
-
-                        plot.show(ui, |ui| {
-                            let points: PlotPoints = self.time_points
-                                .iter()
-                                .zip(self.x_points.iter())
-                                .map(|(&x, &y)| {
-                                    [x, y]
-                                })
-                                .collect();
-                            ui.line(Line::new(points));
-                        });
+                        self.trajectory_plot.show(ui);
                     });
                 });
                 ui.end_row();
