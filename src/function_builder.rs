@@ -60,7 +60,7 @@ impl ConstFunctionBuilder {
 
         ui.horizontal(|ui| {
             ui.label("A: ");
-            result = DragValue::new(&mut self.value).ui(ui).changed();
+            result = DragValue::new(&mut self.value).speed(0.1).ui(ui).changed();
         });
 
         result
