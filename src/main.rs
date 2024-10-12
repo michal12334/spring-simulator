@@ -1,6 +1,7 @@
 use app::App;
 
 pub mod app;
+pub mod function;
 
 fn main() -> eframe::Result {
     let native_options = eframe::NativeOptions {

@@ -2,6 +2,8 @@ use chrono::{DateTime, Local};
 use egui::{Layout, Vec2, Widget};
 use egui_plot::{Legend, Line, Plot, PlotPoints};
 
+use crate::function::{ConstFunction, Function};
+
 #[derive(Debug)]
 pub struct App {
     speed: f64,
@@ -15,6 +17,8 @@ pub struct App {
     k: f64,
     delta_t: f64,
     tick: f64,
+    w: Function,
+    h: Function,
     run: bool,
     time_points: Vec<f64>,
     x_points: Vec<f64>,
@@ -34,6 +38,8 @@ impl App {
             k: 0.1,
             delta_t: 20.0 / 1000.0,
             tick: 0.0,
+            w: Function::Const(ConstFunction::new(0.0)),
+            h: Function::Const(ConstFunction::new(0.0)),
             run: false,
             time_points: vec![0.0],
             x_points: vec![0.0],
@@ -51,11 +57,14 @@ impl eframe::App for App {
             self.tick += delta.num_milliseconds() as f64 / 1000.0;
             while self.tick >= self.delta_t / self.speed {
                 self.tick -= self.delta_t / self.speed;
-                let x = self.x;
-                self.x += self.v * self.delta_t;
-                self.v += self.delta_t * (self.c * (0.0 - x) - self.k * self.v + 0.0) / self.m;
 
-                let new_time_point = self.time_points.last().unwrap() + self.delta_t;
+                let x = self.x;
+                let t = *self.time_points.last().unwrap();
+
+                self.x += self.v * self.delta_t;
+                self.v += self.delta_t * (self.c * (self.w.get_value(t) - x) - self.k * self.v + self.h.get_value(t)) / self.m;
+
+                let new_time_point = t + self.delta_t;
                 self.time_points.push(new_time_point);
                 self.x_points.push(self.x);
             }
