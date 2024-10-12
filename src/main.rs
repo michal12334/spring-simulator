@@ -3,6 +3,7 @@ use app::App;
 pub mod app;
 pub mod function;
 pub mod function_builder;
+pub mod forces_plot;
 
 fn main() -> eframe::Result {
     let native_options = eframe::NativeOptions {

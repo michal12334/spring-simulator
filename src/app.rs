@@ -2,7 +2,7 @@ use chrono::{DateTime, Local};
 use egui::{Layout, Vec2, Widget};
 use egui_plot::{Legend, Line, Plot, PlotPoints};
 
-use crate::{function::{ConstFunction, Function}, function_builder::FunctionBuilder};
+use crate::{forces_plot::ForcesPlot, function::{ConstFunction, Function}, function_builder::FunctionBuilder};
 
 #[derive(Debug)]
 pub struct App {
@@ -25,6 +25,23 @@ pub struct App {
     started: bool,
     time_points: Vec<f64>,
     x_points: Vec<f64>,
+    forces_plot: ForcesPlot,
+}
+
+#[derive(Debug, Default)]
+struct Forces {
+    f: f64,
+    g: f64,
+    h: f64,
+    w: f64,
+}
+
+impl Forces {
+    pub fn new(f: f64, g: f64, h: f64, w: f64) -> Self {
+        Self {
+            f, g, h, w
+        }
+    }
 }
 
 impl App {
@@ -49,6 +66,7 @@ impl App {
             started: false,
             time_points: vec![0.0],
             x_points: vec![0.0],
+            forces_plot: ForcesPlot::default(),
         }
     }
 
@@ -62,6 +80,16 @@ impl App {
         self.time_points.push(0.0);
         self.x_points.clear();
         self.x_points.push(self.x_0);
+        self.forces_plot.reset();
+    }
+
+    fn forces(&self) -> Forces {
+        let t = *self.time_points.last().unwrap();
+        let w = self.w.get_value(t);
+        let h = self.h.get_value(t);
+        let g = -self.k * self.v;
+        let f = self.c * (w - self.x);
+        Forces::new(f, g, h, w)
     }
 }
 
@@ -76,15 +104,17 @@ impl eframe::App for App {
             while self.tick >= self.delta_t / self.speed {
                 self.tick -= self.delta_t / self.speed;
 
-                let x = self.x;
                 let t = *self.time_points.last().unwrap();
+                let forces = self.forces();
 
                 self.x += self.v * self.delta_t;
-                self.v += self.delta_t * (self.c * (self.w.get_value(t) - x) - self.k * self.v + self.h.get_value(t)) / self.m;
+                self.v += self.delta_t * (forces.f + forces.g + forces.h) / self.m;
 
                 let new_time_point = t + self.delta_t;
                 self.time_points.push(new_time_point);
                 self.x_points.push(self.x);
+
+                self.forces_plot.add(t, forces.f, forces.g, forces.h, forces.w);
             }
         }
 
@@ -93,10 +123,7 @@ impl eframe::App for App {
                 if ui.button("run").clicked() {
                     self.run = true;
                     if !self.started {
-                        self.x = self.x_0;
-                        self.v = self.v_0;
-                        self.x_points.clear();
-                        self.x_points.push(self.x_0);
+                        self.reset();
                     }
                     self.started = true;
                 }
@@ -165,22 +192,7 @@ impl eframe::App for App {
                 
                 ui.allocate_ui(cell_size, |ui| {
                     ui.centered_and_justified(|ui| {
-                        let plot = Plot::new("plot1")
-                            .legend(Legend::default())
-                            .show_axes(true)
-                            .show_grid(true)
-                            .data_aspect(1.0);
-
-                        plot.show(ui, |ui| {
-                            let points: PlotPoints = self.time_points
-                                .iter()
-                                .zip(self.x_points.iter())
-                                .map(|(&x, &y)| {
-                                    [x, y]
-                                })
-                                .collect();
-                            ui.line(Line::new(points));
-                        });
+                        self.forces_plot.show(ui);
                     });
                 });
                 ui.end_row();
