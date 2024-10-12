@@ -91,8 +91,8 @@ impl eframe::App for App {
 
             egui::Slider::new(&mut self.speed, 0.1..=10.0).text("speed").ui(ui);
             egui::Slider::new(&mut self.delta_t, 0.01..=0.5).step_by(0.01).text("delta_t").ui(ui);
-            egui::Slider::new(&mut self.x_0, 0.01..=0.5).text("x_0").ui(ui);
-            egui::Slider::new(&mut self.v_0, 0.01..=0.5).text("v_0").ui(ui);
+            egui::Slider::new(&mut self.x_0, -1.0..=1.0).text("x_0").ui(ui);
+            egui::Slider::new(&mut self.v_0, -1.0..=1.0).text("v_0").ui(ui);
             egui::Slider::new(&mut self.m, 1.0..=50.0).text("m").ui(ui);
             egui::Slider::new(&mut self.c, 0.1..=1.0).text("c").ui(ui);
             egui::Slider::new(&mut self.k, 0.1..=1.0).text("k").ui(ui);
