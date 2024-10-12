@@ -1,11 +1,12 @@
 use egui::{Checkbox, DragValue, Widget};
 
-use crate::function::{ConstFunction, Function, StepFunction};
+use crate::function::{ConstFunction, Function, SinFunction, StepFunction};
 
 #[derive(Debug, Default)]
 pub struct FunctionBuilder {
     const_function_builder: ConstFunctionBuilder,
     step_function_builder: StepFunctionBuilder,
+    sin_function_builder: SinFunctionBuilder,
     builder_type: FunctionBuilderType,
 }
 
@@ -31,6 +32,15 @@ impl FunctionBuilder {
         }
         result = result || (self.step_function_builder.show(ui) && self.builder_type == FunctionBuilderType::Step);
 
+        let mut checked = self.builder_type == FunctionBuilderType::Sin;
+        if Checkbox::new(&mut checked, "f(t) = A sin(wt + q)").ui(ui).changed() {
+            if checked {
+                self.builder_type = FunctionBuilderType::Sin;
+                result = true;
+            }
+        }
+        result = result || (self.sin_function_builder.show(ui) && self.builder_type == FunctionBuilderType::Sin);
+
         result
     }
 
@@ -38,6 +48,7 @@ impl FunctionBuilder {
         match self.builder_type {
             FunctionBuilderType::Const => Function::Const(self.const_function_builder.build()),
             FunctionBuilderType::Step => Function::Step(self.step_function_builder.build()),
+            FunctionBuilderType::Sin => Function::Sin(self.sin_function_builder.build()),
         }
     }
 }
@@ -47,6 +58,7 @@ enum FunctionBuilderType {
     #[default]
     Const,
     Step,
+    Sin,
 }
 
 #[derive(Debug, Default)]
@@ -95,5 +107,37 @@ impl StepFunctionBuilder {
 
     pub fn build(&self) -> StepFunction {
         StepFunction::new(self.value, self.min_t)
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct SinFunctionBuilder {
+    a: f64,
+    w: f64,
+    q: f64,
+}
+
+impl SinFunctionBuilder {
+    pub fn show(&mut self, ui: &mut egui::Ui) -> bool {
+        let mut result = false;
+
+        ui.horizontal(|ui| {
+            ui.label("A: ");
+            result = result || DragValue::new(&mut self.a).speed(0.1).ui(ui).changed();
+        });
+        ui.horizontal(|ui| {
+            ui.label("w: ");
+            result = result || DragValue::new(&mut self.w).speed(0.1).ui(ui).changed();
+        });
+        ui.horizontal(|ui| {
+            ui.label("q: ");
+            result = result || DragValue::new(&mut self.q).speed(0.1).ui(ui).changed();
+        });
+
+        result
+    }
+
+    pub fn build(&self) -> SinFunction {
+        SinFunction::new(self.a, self.w, self.q)
     }
 }

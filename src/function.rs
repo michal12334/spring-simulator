@@ -2,6 +2,7 @@
 pub enum Function {
     Const(ConstFunction),
     Step(StepFunction),
+    Sin(SinFunction),
 }
 
 impl Function {
@@ -9,6 +10,7 @@ impl Function {
         match self {
             Function::Const(f) => f.value,
             Function::Step(f) => if t >= f.min_t { f.value } else { 0.0 },
+            Function::Sin(f) => f.a * (f.w * t + f.q).sin(),
         }
     }
 }
@@ -35,3 +37,17 @@ impl StepFunction {
         Self { value, min_t }
     }
 }
+
+#[derive(Debug)]
+pub struct SinFunction {
+    a: f64,
+    w: f64,
+    q: f64,
+}
+
+impl SinFunction {
+    pub fn new(a: f64, w: f64, q: f64) -> Self {
+        Self { a, w, q }
+    }
+}
+
