@@ -7,7 +7,12 @@ pub struct App {
     speed: f64,
     previous_time: DateTime<Local>,
     x: f64,
-    x_d: f64,
+    v: f64,
+    x_0: f64,
+    v_0: f64,
+    m: f64,
+    c: f64,
+    k: f64,
     delta_t: f64,
     tick: f64,
     run: bool,
@@ -20,13 +25,18 @@ impl App {
         Self {
             speed: 1.0,
             previous_time: Local::now(),
-            x: 0.0,
-            x_d: 1.0,
+            x: 1.0,
+            v: 0.0,
+            x_0: 0.0,
+            v_0: 1.0,
+            m: 1.0,
+            c: 0.1,
+            k: 0.1,
             delta_t: 20.0 / 1000.0,
             tick: 0.0,
             run: false,
             time_points: vec![0.0],
-            x_points: vec![1.0],
+            x_points: vec![0.0],
         }
     }
 }
@@ -41,14 +51,9 @@ impl eframe::App for App {
             self.tick += delta.num_milliseconds() as f64 / 1000.0;
             while self.tick >= self.delta_t / self.speed {
                 self.tick -= self.delta_t / self.speed;
-                self.x += self.x_d * self.delta_t;
-                if self.x >= 1.0 {
-                    self.x_d = -1.0;
-                    self.x = 1.0;
-                } else if self.x <= -1.0 {
-                    self.x_d = 1.0;
-                    self.x = -1.0;
-                }
+                let x = self.x;
+                self.x += self.v * self.delta_t;
+                self.v += self.delta_t * (self.c * (0.0 - x) - self.k * self.v + 0.0) / self.m;
 
                 let new_time_point = self.time_points.last().unwrap() + self.delta_t;
                 self.time_points.push(new_time_point);
@@ -71,7 +76,13 @@ impl eframe::App for App {
                 }
             });
 
-            egui::Slider::new(&mut self.speed, 0.1..=10.0).ui(ui);
+            egui::Slider::new(&mut self.speed, 0.1..=10.0).text("speed").ui(ui);
+            egui::Slider::new(&mut self.delta_t, 0.01..=0.5).step_by(0.01).text("delta_t").ui(ui);
+            egui::Slider::new(&mut self.x_0, 0.01..=0.5).text("x_0").ui(ui);
+            egui::Slider::new(&mut self.v_0, 0.01..=0.5).text("v_0").ui(ui);
+            egui::Slider::new(&mut self.m, 1.0..=50.0).text("m").ui(ui);
+            egui::Slider::new(&mut self.c, 0.1..=1.0).text("c").ui(ui);
+            egui::Slider::new(&mut self.k, 0.1..=1.0).text("k").ui(ui);
 
             ui.with_layout(Layout::bottom_up(egui::Align::Min), |ui| {
                 let fps = 1000.0 / delta.num_milliseconds() as f64;
