@@ -97,10 +97,14 @@ impl eframe::App for App {
             egui::Slider::new(&mut self.c, 0.1..=1.0).text("c").ui(ui);
             egui::Slider::new(&mut self.k, 0.1..=1.0).text("k").ui(ui);
 
+            ui.add_space(15.0);
+
             ui.label("w(t):");
             if self.w_builder.show(ui) {
                 self.w = self.w_builder.build();
             }
+
+            ui.add_space(15.0);
 
             ui.label("h(t):");
             if self.h_builder.show(ui) {
