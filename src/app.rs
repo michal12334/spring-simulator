@@ -60,7 +60,7 @@ impl App {
             m: 1.0,
             c: 0.1,
             k: 0.1,
-            delta_t: 20.0 / 1000.0,
+            delta_t: 2.0 / 1000.0,
             tick: 0.0,
             w: Function::Const(ConstFunction::new(0.0)),
             h: Function::Const(ConstFunction::new(0.0)),
@@ -154,8 +154,8 @@ impl eframe::App for App {
             egui::Slider::new(&mut self.speed, 0.1..=10.0)
                 .text("speed")
                 .ui(ui);
-            egui::Slider::new(&mut self.delta_t, 0.01..=0.5)
-                .step_by(0.01)
+            egui::Slider::new(&mut self.delta_t, 0.0001..=0.5)
+                .step_by(0.0001)
                 .text("delta_t")
                 .ui(ui);
             egui::Slider::new(&mut self.x_0, -1.0..=1.0)
