@@ -154,32 +154,35 @@ impl eframe::App for App {
             egui::Slider::new(&mut self.speed, 0.1..=10.0)
                 .text("speed")
                 .ui(ui);
-            egui::Slider::new(&mut self.delta_t, 0.0001..=0.5)
-                .step_by(0.0001)
-                .text("delta_t")
-                .ui(ui);
-            egui::Slider::new(&mut self.x_0, -1.0..=1.0)
-                .text("x_0")
-                .ui(ui);
-            egui::Slider::new(&mut self.v_0, -1.0..=1.0)
-                .text("v_0")
-                .ui(ui);
-            egui::Slider::new(&mut self.m, 1.0..=50.0).text("m").ui(ui);
-            egui::Slider::new(&mut self.c, 0.1..=1.0).text("c").ui(ui);
-            egui::Slider::new(&mut self.k, 0.1..=1.0).text("k").ui(ui);
 
-            ui.add_space(15.0);
+            if !self.started {
+                egui::Slider::new(&mut self.delta_t, 0.0001..=0.5)
+                    .step_by(0.0001)
+                    .text("delta_t")
+                    .ui(ui);
+                egui::Slider::new(&mut self.x_0, -1.0..=1.0)
+                    .text("x_0")
+                    .ui(ui);
+                egui::Slider::new(&mut self.v_0, -1.0..=1.0)
+                    .text("v_0")
+                    .ui(ui);
+                egui::Slider::new(&mut self.m, 1.0..=50.0).text("m").ui(ui);
+                egui::Slider::new(&mut self.c, 0.1..=1.0).text("c").ui(ui);
+                egui::Slider::new(&mut self.k, 0.1..=1.0).text("k").ui(ui);
 
-            ui.label("w(t):");
-            if self.w_builder.show(ui) {
-                self.w = self.w_builder.build();
-            }
+                ui.add_space(15.0);
 
-            ui.add_space(15.0);
+                ui.label("w(t):");
+                if self.w_builder.show(ui) {
+                    self.w = self.w_builder.build();
+                }
 
-            ui.label("h(t):");
-            if self.h_builder.show(ui) {
-                self.h = self.h_builder.build();
+                ui.add_space(15.0);
+
+                ui.label("h(t):");
+                if self.h_builder.show(ui) {
+                    self.h = self.h_builder.build();
+                }
             }
 
             ui.with_layout(Layout::bottom_up(egui::Align::Min), |ui| {
