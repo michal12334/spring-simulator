@@ -206,7 +206,7 @@ impl eframe::App for App {
                         let y = cell_size.y / 2.0;
                         let x_space = cell_size.x - 40.0;
                         let x_min = 0.2 * x_space;
-                        let x = x_min + (self.x as f32 + 1.0) * 0.5 * (x_space - x_min);
+                        let x = x_min + (self.x as f32 + 3.0) / 6.0 * (x_space - x_min);
 
                         let start = egui::pos2(
                             20.0 + current_size.x_range().min,
