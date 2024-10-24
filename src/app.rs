@@ -81,6 +81,7 @@ impl App {
         self.tick = 0.0;
         self.run = false;
         self.started = false;
+        self.time = 0.0;
         self.forces_plot.reset();
         self.position_plot.reset();
         self.trajectory_plot.reset();
