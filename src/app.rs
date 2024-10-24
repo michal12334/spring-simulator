@@ -167,9 +167,9 @@ impl eframe::App for App {
                 egui::Slider::new(&mut self.v_0, -1.0..=1.0)
                     .text("v_0")
                     .ui(ui);
-                egui::Slider::new(&mut self.m, 1.0..=50.0).text("m").ui(ui);
-                egui::Slider::new(&mut self.c, 0.1..=1.0).text("c").ui(ui);
-                egui::Slider::new(&mut self.k, 0.1..=1.0).text("k").ui(ui);
+                egui::Slider::new(&mut self.m, 0.1..=5.0).text("m").ui(ui);
+                egui::Slider::new(&mut self.c, 0.1..=5.0).text("c").ui(ui);
+                egui::Slider::new(&mut self.k, 0.1..=5.0).text("k").ui(ui);
 
                 ui.add_space(15.0);
 
